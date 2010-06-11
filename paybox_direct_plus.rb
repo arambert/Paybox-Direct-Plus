@@ -19,14 +19,14 @@ module ActiveMerchant #:nodoc:
         :unreferenced_credit => '00004',
         :void => '00005',
         :refund => '00014',
-        :subscriber_authorization => '00051',
-        :subscriber_capture => '00052',
-        :subscriber_purchase => '00053',
-        :subscriber_unreferenced_credit => '00054',
-        :subscriber_void => '00055',
-        :subscriber_create => '00056',
-        :subscriber_update => '00057',
-        :subscriber_destroy => '00058',
+        :suscriber_authorization => '00051',
+        :suscriber_capture => '00052',
+        :suscriber_purchase => '00053',
+        :suscriber_unreferenced_credit => '00054',
+        :suscriber_void => '00055',
+        :suscriber_create => '00056',
+        :suscriber_update => '00057',
+        :suscriber_destroy => '00058',
       }
 
       CURRENCY_CODES = {
@@ -45,6 +45,8 @@ module ActiveMerchant #:nodoc:
         "USD"=> '840',
         "EUR"=> '978'
       }
+
+      UNKNOWN_PROFILE_CODES = ['00017']
 
       SUCCESS_CODES = ['00000']
 
@@ -67,7 +69,7 @@ module ActiveMerchant #:nodoc:
       self.homepage_url = 'http://www.paybox.com/'
 
       # The name of the gateway
-      self.display_name = 'Paybox Direct'
+      self.display_name = 'Paybox Direct Plus'
 
       def initialize(options = {})
         requires!(options, :login, :password)
@@ -79,14 +81,14 @@ module ActiveMerchant #:nodoc:
         post = {}
         add_invoice(post, options)
         add_creditcard(post, creditcard)
-        commit('subscriber_authorization', money, post)
+        commit('suscriber_authorization', money, post)
       end
 
       def purchase(money, creditcard, options = {})
         post = {}
         add_invoice(post, options)
         add_creditcard(post, creditcard)
-        commit('subscriber_purchase', money, post)
+        commit('suscriber_purchase', money, post)
       end
 
       def capture(money, authorization, options = {})
@@ -112,26 +114,26 @@ module ActiveMerchant #:nodoc:
         post = {}
         add_invoice(post, options)
         add_reference(post, identification)
-        commit('subscriber_refund', money, post)
+        commit('suscriber_refund', money, post)
       end
 
       # Paybox direct plus specific actions (renvoie la réponse avec le customer_payment_profile_id dans reponse.params["gateway_payment_profile_id"]
       def create_customer_profile(creditcard, money = 2000)
         post = {}
         add_creditcard(post, creditcard, true)
-        commit('subscriber_create', money, post)
+        commit('suscriber_create', money, post)
       end
 
       def update_customer_profile(creditcard, money = 2000)
         post = {}
         add_creditcard(post, creditcard, true)
-        commit('subscriber_update', money, post)
+        commit('suscriber_update', money, post)
       end
 
       def destroy_customer_profile(creditcard, money = 2000)
         post = {}
         add_creditcard(post, creditcard)
-        commit('subscriber_destroy', money, post)
+        commit('suscriber_destroy', money, post)
       end
 
       def test?
@@ -179,6 +181,7 @@ module ActiveMerchant #:nodoc:
           :cvv_result => '',
           :avs_result => '',
           :fraud_review => fraud_review?(response),
+          :unknown_customer_profile => unknown_customer_profile?(response),
           :sent_params => parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}
         )
       end
@@ -189,6 +192,10 @@ module ActiveMerchant #:nodoc:
 
       def fraud_review?(response)
         FRAUD_CODES.include?(response[:codereponse])
+      end
+
+      def unknown_customer_profile?(response)
+        UNKNOWN_PROFILE_CODES.include?(response[:codereponse])
       end
 
       def message_from(response)
@@ -208,10 +215,8 @@ module ActiveMerchant #:nodoc:
           :pays => '',
           :archivage => parameters[:order_id]
         )
-        
-        p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
-        puts "\n@@@@@\n Parameters for post data \n #{p.inspect} \n@@@@@@"
-        p
+
+        parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
       end
 
       def unique_id(seed = 0)
