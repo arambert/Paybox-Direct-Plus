@@ -19,14 +19,14 @@ module ActiveMerchant #:nodoc:
         :unreferenced_credit => '00004',
         :void => '00005',
         :refund => '00014',
-        :suscriber_authorization => '00051',
-        :suscriber_capture => '00052',
-        :suscriber_purchase => '00053',
-        :suscriber_unreferenced_credit => '00054',
-        :suscriber_void => '00055',
-        :suscriber_create => '00056',
-        :suscriber_update => '00057',
-        :suscriber_destroy => '00058',
+        :subscriber_authorization => '00051',
+        :subscriber_capture => '00052',
+        :subscriber_purchase => '00053',
+        :subscriber_unreferenced_credit => '00054',
+        :subscriber_void => '00055',
+        :subscriber_create => '00056',
+        :subscriber_update => '00057',
+        :subscriber_destroy => '00058',
       }
 
       CURRENCY_CODES = {
@@ -79,14 +79,14 @@ module ActiveMerchant #:nodoc:
         post = {}
         add_invoice(post, options)
         add_creditcard(post, creditcard)
-        commit('suscriber_authorization', money, post)
+        commit('subscriber_authorization', money, post)
       end
 
       def purchase(money, creditcard, options = {})
         post = {}
         add_invoice(post, options)
         add_creditcard(post, creditcard)
-        commit('suscriber_purchase', money, post)
+        commit('subscriber_purchase', money, post)
       end
 
       def capture(money, authorization, options = {})
@@ -112,26 +112,26 @@ module ActiveMerchant #:nodoc:
         post = {}
         add_invoice(post, options)
         add_reference(post, identification)
-        commit('suscriber_refund', money, post)
+        commit('subscriber_refund', money, post)
       end
 
       # Paybox direct plus specific actions (renvoie la réponse avec le customer_payment_profile_id dans reponse.params["gateway_payment_profile_id"]
       def create_customer_profile(creditcard, money = 2000)
         post = {}
         add_creditcard(post, creditcard, true)
-        commit('suscriber_create', money, post)
+        commit('subscriber_create', money, post)
       end
 
       def update_customer_profile(creditcard, money = 2000)
         post = {}
         add_creditcard(post, creditcard, true)
-        commit('suscriber_update', money, post)
+        commit('subscriber_update', money, post)
       end
 
       def destroy_customer_profile(creditcard, money = 2000)
         post = {}
         add_creditcard(post, creditcard)
-        commit('suscriber_destroy', money, post)
+        commit('subscriber_destroy', money, post)
       end
 
       def test?
@@ -210,7 +210,7 @@ module ActiveMerchant #:nodoc:
         )
         
         p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
-        puts "\n@@@@@\n PArameters for post data \n #{p.inspect} \n@@@@@@"
+        puts "\n@@@@@\n Parameters for post data \n #{p.inspect} \n@@@@@@"
         p
       end
 
