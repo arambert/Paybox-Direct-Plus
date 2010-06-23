@@ -4,9 +4,9 @@ module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     class PayboxDirectPlusGateway < Gateway
       TEST_URL = 'https://ppps.paybox.com/PPPS.php'
-      #TEST_URL_BACKUP = 'https://ppps1.paybox.com/PPPS.php'
+      TEST_URL_BACKUP = 'https://ppps1.paybox.com/PPPS.php'
       LIVE_URL = 'https://ppps.paybox.com/PPPS.php'
-      #LIVE_URL_BACKUP = 'https://ppps1.paybox.com/PPPS.php'
+      LIVE_URL_BACKUP = 'https://ppps1.paybox.com/PPPS.php'
 
       # Payment API Version
       API_VERSION = '00104'
@@ -46,12 +46,11 @@ module ActiveMerchant #:nodoc:
         "EUR"=> '978'
       }
 
+      ALREADY_EXISTING_PROFILE_CODES = ['00016']
       UNKNOWN_PROFILE_CODES = ['00017']
-
       SUCCESS_CODES = ['00000']
-
+      UNAVAILABILITY_CODES = ['00001', '00097', '00098']
       FRAUD_CODES = ['00102','00104','00105','00134','00138','00141','00143','00156','00157','00159']
-
       SUCCESS_MESSAGE = 'The transaction was approved'
       FAILURE_MESSAGE = 'The transaction failed'
 
@@ -174,6 +173,7 @@ module ActiveMerchant #:nodoc:
         parameters[:devise] = CURRENCY_CODES[options[:currency] || currency(money)]
         request_data = post_data(action,parameters)
         response = parse(ssl_post(test? ? TEST_URL : LIVE_URL, request_data))
+        response = parse(ssl_post(test? ? TEST_URL_BACKUP : LIVE_URL_BACKUP, request_data)) if service_unavailable?(response)
         Response.new(success?(response), message_from(response), response.merge(
           :timestamp => parameters[:dateq]),
           :test => test?,
@@ -182,6 +182,7 @@ module ActiveMerchant #:nodoc:
           :avs_result => '',
           :fraud_review => fraud_review?(response),
           :unknown_customer_profile => unknown_customer_profile?(response),
+          :already_existing_customer_profile => already_existing_customer_profile?(response),
           :sent_params => parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}
         )
       end
@@ -194,8 +195,16 @@ module ActiveMerchant #:nodoc:
         FRAUD_CODES.include?(response[:codereponse])
       end
 
+      def service_unavailable?(response)
+        UNAVAILABILITY_CODES.include?(response[:codereponse])
+      end
+
       def unknown_customer_profile?(response)
         UNKNOWN_PROFILE_CODES.include?(response[:codereponse])
+      end
+
+      def already_existing_customer_profile?(response)
+        ALREADY_EXISTING_PROFILE_CODES.include?(response[:codereponse])
       end
 
       def message_from(response)
@@ -216,7 +225,9 @@ module ActiveMerchant #:nodoc:
           :archivage => parameters[:order_id]
         )
 
-        parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
+        p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
+        puts "\n@@@@@\n PArameters for post data \n #{p.inspect} \n@@@@@@"
+        p
       end
 
       def unique_id(seed = 0)
