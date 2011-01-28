@@ -3,8 +3,8 @@ require 'iconv'
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     class PayboxDirectPlusGateway < Gateway
-      TEST_URL = 'https://ppps.paybox.com/PPPS.php'
-      TEST_URL_BACKUP = 'https://ppps1.paybox.com/PPPS.php'
+      TEST_URL = 'https://preprod-ppps.paybox.com/PPPS.php'
+      TEST_URL_BACKUP = 'https://preprod-ppps.paybox.com/PPPS.php'
       LIVE_URL = 'https://ppps.paybox.com/PPPS.php'
       LIVE_URL_BACKUP = 'https://ppps1.paybox.com/PPPS.php'
 
@@ -76,6 +76,10 @@ module ActiveMerchant #:nodoc:
         super
       end
 
+      def payment_profiles_supported?
+        true
+      end
+
       def authorize(money, creditcard, options = {})
         post = {}
         add_invoice(post, options)
@@ -117,19 +121,19 @@ module ActiveMerchant #:nodoc:
       end
 
       # Paybox direct plus specific actions (renvoie la réponse avec le customer_payment_profile_id dans reponse.params["gateway_payment_profile_id"]
-      def create_customer_profile(creditcard, money = 2000)
+      def create_payment_profile(creditcard, money = 0000)
         post = {}
         add_creditcard(post, creditcard, true)
         commit('suscriber_create', money, post)
       end
 
-      def update_customer_profile(creditcard, money = 2000)
+      def update_payment_profile(creditcard, money = 0000)
         post = {}
         add_creditcard(post, creditcard, true)
         commit('suscriber_update', money, post)
       end
 
-      def destroy_customer_profile(creditcard, money = 2000)
+      def destroy_payment_profile(creditcard, money = 0000)
         post = {}
         add_creditcard(post, creditcard)
         commit('suscriber_destroy', money, post)
@@ -164,7 +168,7 @@ module ActiveMerchant #:nodoc:
           key,val = pair.split(/=/)
           results[key.downcase.to_sym] = CGI.unescape(val) if val
         end
-        puts results.inspect
+        Rails.logger.info results.inspect
         results
       end
 
@@ -174,16 +178,17 @@ module ActiveMerchant #:nodoc:
         request_data = post_data(action,parameters)
         response = parse(ssl_post(test? ? TEST_URL : LIVE_URL, request_data))
         response = parse(ssl_post(test? ? TEST_URL_BACKUP : LIVE_URL_BACKUP, request_data)) if service_unavailable?(response)
-        Response.new(success?(response), message_from(response), response.merge(
-          :timestamp => parameters[:dateq]),
-          :test => test?,
-          :authorization => response[:numappel].to_s + response[:numtrans].to_s,
-          :cvv_result => '',
-          :avs_result => '',
-          :fraud_review => fraud_review?(response),
-          :unknown_customer_profile => unknown_customer_profile?(response),
-          :already_existing_customer_profile => already_existing_customer_profile?(response),
-          :sent_params => parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}
+        Response.new(success?(response), message_from(response), response.merge({
+            :timestamp => parameters[:dateq],
+            :test => test?,
+            :authorization => response[:numappel].to_s + response[:numtrans].to_s,
+            :cvv_result => '',
+            :avs_result => '',
+            :fraud_review => fraud_review?(response),
+            :unknown_customer_profile => unknown_customer_profile?(response),
+            :already_existing_customer_profile => already_existing_customer_profile?(response),
+            :sent_params => parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}
+            })
         )
       end
 
@@ -226,7 +231,11 @@ module ActiveMerchant #:nodoc:
         )
 
         p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
-        puts "\n@@@@@\n PArameters for post data \n #{p.inspect} \n@@@@@@"
+        Rails.logger.info "\n***************************"
+        Rails.logger.debug "********** POST DATA IN PAYBOX PLUS ***********"
+        Rails.logger.debug "*** Parameters for post data:"
+        Rails.logger.debug "#{p.inspect}"
+        Rails.logger.info "*****************************"
         p
       end
 
