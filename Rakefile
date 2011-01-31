@@ -28,17 +28,29 @@ end
 Jeweler::RubygemsDotOrgTasks.new
 
 require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-end
 
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
+namespace :test do
+  Rake::TestTask.new(:test) do |test|
+    test.libs << 'lib' << 'test'
+    test.pattern = 'test/**/test_*.rb'
+    test.verbose = true
+  end
+
+  require 'rcov/rcovtask'
+
+  Rake::TestTask.new(:units) do |t|
+    t.pattern = 'test/unit/**/*_test.rb'
+    t.ruby_opts << '-rubygems'
+    t.libs << 'test'
+    t.verbose = true
+  end
+
+  Rake::TestTask.new(:remote) do |t|
+    t.pattern = 'test/remote/**/*_test.rb'
+    t.ruby_opts << '-rubygems'
+    t.libs << 'test'
+    t.verbose = true
+  end
 end
 
 task :default => :test
