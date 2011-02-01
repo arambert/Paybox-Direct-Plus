@@ -100,14 +100,15 @@ module ActiveMerchant #:nodoc:
         commit('subscriber_capture', money, post)
       end
 
-      def void(identification, options = {})
-        requires!(options, :order_id, :amount)#, :credit_card, :timestamp)
+      def void(money, authorization, options = {})
+        requires!(options, :order_id, :user_reference)
         post = {}
         add_invoice(post, options)
-        add_reference(post, identification)
+        add_reference(post, authorization)
+        add_user_reference(post, options)
         post[:porteur] = '000000000000000'
         post[:dateval] = '0000'
-        commit('void', options[:amount], post)
+        commit('subscriber_void', money, post)
       end
 
       def credit(money, identification, options = {})
@@ -226,12 +227,12 @@ module ActiveMerchant #:nodoc:
           :version => API_VERSION,
           :type => TRANSACTIONS[action.to_sym],
           :dateq => Time.now.strftime('%d%m%Y%H%M%S'),
-          :numquestion => unique_id(parameters[:order_id]),
+          :numquestion => unique_id(parameters[:reference]),
           :site => @options[:login].to_s[0,7],
           :rang => @options[:login].to_s[7..-1],
           :cle => @options[:password],
           :pays => '',
-          :archivage => parameters[:order_id]
+          :archivage => parameters[:reference]
         )
 
         p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
