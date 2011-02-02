@@ -1,25 +1,41 @@
 ## Paybox Direct Plus
 
-This is a implementation of Paybox Direct Plus for ActiveMerchant Billing Gateway.
-Paybox Direct Plus is a french payment solution allowing recurring payments, subscriptions etc...
+This is a implementation of Paybox Direct Plus for ActiveMerchant.
+Paybox Direct Plus is a French payment solution allowing recurring payments, subscriptions, etc.
 
-### Creditcard Object
+### Use and important information
 
-In order to use Paybox Direct Plus, you have to add two attributes to your Creditcard model:
+You have to create a Paybox user profile for every user you want to charge :
 
-* gateway_payment_profile_id : this attribute's value will be returned by Paybox during the registration step. It will replace the creditcard number for the next payments.
-* gateway_customer_profile_id : this is a unique customer identifier defined by the seller (you). If a customer uses several creditcards, he should have one unique gateway_customer_profile_id per creditcard.
+    response = @gateway.create_payment_profile(@amount, @credit_card, { :user_reference => "YOUR_USER_REFERENCE" })
 
-These attributes must be stored (in your database) in order to be able to use the subscription option in Paybox Direct Plus.
+When creating a user profile, Paybox will do an authorization on the credit card. Thefore Paybox recommends that you give the same amount than your transaction
+when registering a user, so that you can do a `capture` after.
 
-## Paybox Direct
+The Paybox response contains the identifier `response.params["authorization"]` that may be saved in order to void or capture the transaction.
 
-This should also work with a simple Paybox Direct use (the "Plus" in Paybox Direct Plus is the option allowing recurring payments)
+    @gateway.capture(@amount, response.params["authorization"], { :user_reference => "YOUR_USER_REFERENCE", :order_id => "ORDER_REFERENCE" })
 
-## Credits
+Using the `purchase` method will do an authorization and a capture. Some banks requires some delay between 2 authorizations on the same card. So if you register
+a profile then call `purchase` just after instead of `capture`, it may fail with some banks.
 
-This is a fork of Donald Piret's great work on Paybox Direct.
+When registering a new user, you will get a credit card reference in the response you get from Paybox : `response.params["credit_card_reference"])`.
 
-## Contact
+This is the reference you will have to add in the options when calling `purcharse` or `authorization` methods. You still have to pass a credit_card object but it will
+only be used for the validation date and CVV number.
+
+    @gateway.purchase(@amount, @credit_card, { :user_reference => "YOUR_USER_REFERENCE", :order_id => "ORDER_REFERENCE", :credit_card_reference => @credit_card_reference })
+
+
+### Tests
+
+Remote integrations tests using the Paybox tests logins and server are available and should always pass.
+
+### Credits
+
+The base of all this work is Donald Piret's great work on Paybox Direct Gateway implementation.
+
+### Contact
 
 Please don't hesitate to contact me if you have any question, any suggestion or if you found any bug.
+

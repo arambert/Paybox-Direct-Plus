@@ -120,6 +120,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def create_payment_profile(money, creditcard, options = {})
+        requires!(options, :user_reference)
         post = {}
         add_creditcard(post, creditcard, options)
         add_user_reference(post, options)
