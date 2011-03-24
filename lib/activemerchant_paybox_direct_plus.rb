@@ -246,7 +246,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def unique_id(seed = 0)
-        randkey = "#{seed}#{Time.now.usec}".to_i % 2147483647 # Max paybox value for the question number
+        randkey = "#{seed.hash}#{Time.now.usec}".to_i % 2147483647 # Max paybox value for the question number
 
         "0000000000#{randkey}"[-10..-1]
       end
