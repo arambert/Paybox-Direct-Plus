@@ -134,7 +134,7 @@ module ActiveMerchant #:nodoc:
         commit('subscriber_update', money, post)
       end
 
-      def destroy_payment_profile(money, identification)
+      def destroy_payment_profile(money, options)
         post = {}
         add_user_reference(post, options)
         commit('subscriber_destroy', money, post)
