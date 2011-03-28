@@ -127,7 +127,7 @@ module ActiveMerchant #:nodoc:
         commit('subscriber_create', money, post)
       end
 
-      def update_payment_profile(money, creditcard)
+      def update_payment_profile(money, creditcard, options = {})
         post = {}
         add_creditcard(post, creditcard, options)
         add_user_reference(post, options)
