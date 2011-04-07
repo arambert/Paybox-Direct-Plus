@@ -76,9 +76,11 @@ module ActiveMerchant #:nodoc:
       end
 
       def authorize(money, creditcard, options = {})
+        requires!(options, :user_reference)
         post = {}
         add_invoice(post, options)
         add_creditcard(post, creditcard, options)
+        add_user_reference(post, options)
         commit('subscriber_authorization', money, post)
       end
 
