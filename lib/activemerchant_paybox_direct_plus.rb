@@ -1,4 +1,4 @@
-require 'iconv'
+#require 'iconv'
 require 'active_merchant'
 
 module ActiveMerchant #:nodoc:
@@ -168,13 +168,14 @@ module ActiveMerchant #:nodoc:
       end
 
       def parse(body)
-        body = Iconv.iconv("UTF-8","LATIN1", body.to_s).join
+        # body = Iconv.iconv("UTF-8","LATIN1", body.to_s).join
+        body.encode!(Encoding::ISO_8859_1)
         results = {}
         body.split(/&/).each do |pair|
           key,val = pair.split(/=/)
           results[key.downcase.to_sym] = CGI.unescape(val) if val
         end
-        #Rails.logger.info results.inspect
+        #puts results.inspect
         results
       end
 
@@ -239,11 +240,11 @@ module ActiveMerchant #:nodoc:
         )
 
         p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
-        #Rails.logger.info "\n***************************"
-        #Rails.logger.debug "********** POST DATA IN PAYBOX PLUS ***********"
-        #Rails.logger.debug "*** Parameters for post data:"
-        #Rails.logger.debug "#{p.inspect}"
-        #Rails.logger.info "*****************************"
+        puts "\n***************************"
+        puts "********** POST DATA IN PAYBOX PLUS ***********"
+        puts "*** Parameters for post data:"
+        puts "#{p.inspect}"
+        puts "*****************************"
         p
       end
 
