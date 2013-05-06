@@ -1,4 +1,3 @@
-require 'iconv'
 require 'active_merchant'
 
 module ActiveMerchant #:nodoc:
@@ -168,7 +167,12 @@ module ActiveMerchant #:nodoc:
       end
 
       def parse(body)
-        body = Iconv.iconv("UTF-8","LATIN1", body.to_s).join
+        if RUBY_VERSION < "1.9"
+          require 'iconv'
+          body = Iconv.iconv("UTF-8","LATIN1", body.to_s).join
+        else
+          body.encode!('UTF-8', Encoding::ISO_8859_1)
+        end
         results = {}
         body.split(/&/).each do |pair|
           key,val = pair.split(/=/)

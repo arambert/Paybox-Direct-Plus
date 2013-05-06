@@ -53,7 +53,7 @@ class RemotePayboxDirectPlusTest < Test::Unit::TestCase
   def test_failed_capture
     assert response = @gateway.capture(@amount, '', :order_id => '1', :user_reference => 'pipomolo')
     assert_failure response
-    assert_equal "Mandatory values missing keyword:13 Type:18", response.message
+    assert_equal "Mandatory values missing keyword:13 Type:19", response.message
   end
 end
 

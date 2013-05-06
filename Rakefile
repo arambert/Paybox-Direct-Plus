@@ -36,8 +36,6 @@ namespace :test do
     test.verbose = true
   end
 
-  require 'rcov/rcovtask'
-
   Rake::TestTask.new(:units) do |t|
     t.pattern = 'test/unit/**/*_test.rb'
     t.ruby_opts << '-rubygems'
@@ -55,7 +53,7 @@ end
 
 task :default => :test
 
-require 'rake/rdoctask'
+require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 

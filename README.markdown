@@ -26,6 +26,10 @@ only be used for the validation date and CVV number.
 
     @gateway.purchase(@amount, @credit_card, { :user_reference => "YOUR_USER_REFERENCE", :order_id => "ORDER_REFERENCE", :credit_card_reference => @credit_card_reference })
 
+### Compatibility
+
+For Ruby 1.8, use version 0.1.0.
+For Ruby 1.9 & 2.0 use latest version (>=0.2.0)
 
 ### Tests
 

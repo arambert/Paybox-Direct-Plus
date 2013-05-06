@@ -4,11 +4,10 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 require 'rubygems'
 require 'test/unit'
 require 'money'
-require 'mocha'
+require 'mocha/setup'
 require 'yaml'
 require 'active_merchant'
 require File.join(File.dirname(__FILE__), '..', 'lib', 'activemerchant_paybox_direct_plus')
-require 'ruby-debug'
 
 require 'active_support/core_ext/integer/time'
 require 'active_support/core_ext/numeric/time'
