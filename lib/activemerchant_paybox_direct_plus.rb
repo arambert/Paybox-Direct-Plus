@@ -16,7 +16,7 @@ module ActiveMerchant #:nodoc:
         :subscriber_authorization => '00051',
         :subscriber_capture => '00052',
         :subscriber_purchase => '00053',
-        :subscriber_credit => '00054',
+        :subscriber_credit => '00014',
         :subscriber_void => '00055',
         :subscriber_create => '00056',
         :subscriber_update => '00057',

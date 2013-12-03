@@ -45,9 +45,24 @@ class RemotePayboxDirectPlusTest < Test::Unit::TestCase
     
     @credit_card.number = nil
     
-    assert_response = @gateway.purchase(@amount, @credit_card, @options.merge({ :credit_card_reference => credit_card_reference }))
+    assert success = @gateway.purchase(@amount, @credit_card, @options.merge({ :credit_card_reference => credit_card_reference }))
+    assert_success success
+    assert_equal 'The transaction was approved', success.message
+  end
+
+  def test_create_profile_capture_and_credit
+    assert response = @gateway.create_payment_profile(@amount, @credit_card, @options)
     assert_success response
-    assert_equal 'The transaction was approved', response.message
+    
+    credit_card_reference = response.params["credit_card_reference"]
+    assert_not_nil credit_card_reference
+    
+    assert capture = @gateway.capture(@amount, response.params["authorization"], @options)
+    assert_success capture
+    
+    assert credit = @gateway.credit(@amount, capture.params["authorization"], @options)
+    assert_equal 'The transaction was approved', credit.message
+    assert_success credit
   end
   
   def test_failed_capture
