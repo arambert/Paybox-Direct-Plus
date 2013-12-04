@@ -50,7 +50,7 @@ class RemotePayboxDirectPlusTest < Test::Unit::TestCase
     assert_equal 'The transaction was approved', success.message
   end
 
-  def test_create_profile_capture_and_credit
+  def test_create_profile_capture_and_refund
     assert response = @gateway.create_payment_profile(@amount, @credit_card, @options)
     assert_success response
     
@@ -60,9 +60,9 @@ class RemotePayboxDirectPlusTest < Test::Unit::TestCase
     assert capture = @gateway.capture(@amount, response.params["authorization"], @options)
     assert_success capture
     
-    assert credit = @gateway.credit(@amount, capture.params["authorization"], @options)
-    assert_equal 'The transaction was approved', credit.message
-    assert_success credit
+    assert refund = @gateway.refund(@amount, capture.params["authorization"], @options)
+    assert_equal 'The transaction was approved', refund.message
+    assert_success refund
   end
   
   def test_failed_capture

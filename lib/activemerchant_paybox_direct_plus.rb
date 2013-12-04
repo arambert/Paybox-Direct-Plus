@@ -16,7 +16,8 @@ module ActiveMerchant #:nodoc:
         :subscriber_authorization => '00051',
         :subscriber_capture => '00052',
         :subscriber_purchase => '00053',
-        :subscriber_credit => '00014',
+        :subscriber_credit => '00054',
+        :subscriber_refund => '00014',
         :subscriber_void => '00055',
         :subscriber_create => '00056',
         :subscriber_update => '00057',
@@ -118,6 +119,14 @@ module ActiveMerchant #:nodoc:
         add_reference(post, identification)
         add_user_reference(post, options)
         commit('subscriber_credit', money, post)
+      end
+
+      def refund(money, authorization, options = {})
+        post = {}
+        add_invoice(post, options)
+        add_reference(post, authorization)
+        add_user_reference(post, options)
+        commit('subscriber_refund', money, post)
       end
 
       def create_payment_profile(money, creditcard, options = {})
