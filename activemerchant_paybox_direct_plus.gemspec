@@ -20,12 +20,10 @@ Gem::Specification.new do |s|
     'Gemfile',
     'Gemfile.lock',
     'LICENSE.txt',
-    'README.markdown',
+    'README.md',
     'Rakefile',
-    'VERSION',
     'activemerchant_paybox_direct_plus.gemspec',
     'lib/activemerchant_paybox_direct_plus.rb',
-    'test/fixtures.yml',
     'test/remote/gateways/remote_paybox_direct_plus_test.rb',
     'test/test_helper.rb'
   ]
@@ -37,7 +35,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'activemerchant', '~> 1'
 
   s.add_development_dependency 'minitest', '>= 0'
-  s.add_development_dependency 'bundler', '>= 0'
   s.add_development_dependency 'simplecov', '>= 0'
   s.add_development_dependency 'bundler', '~> 1.7'
   s.add_development_dependency 'rake', '~> 10'

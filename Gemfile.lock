@@ -45,6 +45,3 @@ DEPENDENCIES
   minitest
   rake (~> 10)
   simplecov
-
-BUNDLED WITH
-   1.11.2
