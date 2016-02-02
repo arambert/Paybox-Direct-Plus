@@ -1,18 +1,3 @@
-source "http://rubygems.org"
-# Add dependencies required to use your gem here.
-# Example:
-#   gem "activesupport", ">= 2.3.5"
+source 'https://rubygems.org'
 
-# Add dependencies to develop your gem here.
-# Include everything needed to run rake, tests, features, etc.
-group :development do
-  gem "activemerchant", "~> 1.10"
-  gem "shoulda", ">= 0"
-  gem "bundler"
-  gem "jeweler"
-  gem "simplecov"
-  gem 'money'
-  gem 'mocha'
-  gem 'activesupport'
-  gem 'actionpack', ">=3.0"
-end
+gemspec
